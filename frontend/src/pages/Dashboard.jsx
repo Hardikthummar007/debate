@@ -1005,21 +1005,21 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* FOOTER SIGILS */}
-            <section className="relative mt-5 pt-6">
-              <div className="divider-ornate" />
-              <div className="flex items-center justify-center gap-8 md:gap-12 mt-4 opacity-55">
-                {[sigilStark, sigilLannister, sigilTargaryen, sigilMartell, sigilGreyjoy].map((s, i) => (
-                  <img key={i} src={s} alt="" className="w-8 h-8 object-contain grayscale hover:grayscale-0 transition duration-300" />
-                ))}
-              </div>
-              <div className="text-center font-display text-[8px] tracking-[0.4em] text-muted-foreground/60 mt-4 uppercase">
-                WINTER IS COMING · DEBATE. CONQUER. RULE.
-              </div>
-            </section>
-
           </main>
         </div>
+
+        {/* FOOTER SIGILS */}
+        <section className="relative mt-5 pt-6">
+          <div className="divider-ornate" />
+          <div className="flex items-center justify-center gap-8 md:gap-12 mt-4 opacity-55">
+            {[sigilStark, sigilLannister, sigilTargaryen, sigilMartell, sigilGreyjoy].map((s, i) => (
+              <img key={i} src={s} alt="" className="w-8 h-8 object-contain grayscale hover:grayscale-0 transition duration-300" />
+            ))}
+          </div>
+          <div className="text-center font-display text-[8px] tracking-[0.4em] text-muted-foreground/60 mt-4 uppercase">
+            WINTER IS COMING · DEBATE. CONQUER. RULE.
+          </div>
+        </section>
       </div>
 
       {/* PLACE WAGER MODAL */}
