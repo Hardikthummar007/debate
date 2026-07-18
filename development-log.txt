@@ -1,0 +1,30 @@
+DEBAIT DEVELOPMENT LOG
+=======================
+
+Features Implemented:
+---------------------
+- Scaffolding the React frontend using Vite.
+- Scaffolding the Spring Boot backend service ("contestService") on port 8082.
+- Initial DB schema mapping.
+
+Files Created:
+--------------
+- `/Users/hardikthumar/Documents/debate/development-log.txt` (This log)
+- `/Users/hardikthumar/Documents/debate/system-flow.md` (System flow diagrams)
+- `/Users/hardikthumar/Documents/debate/api-documentation.md` (API specification)
+- `/Users/hardikthumar/Documents/debate/contestService/...` (Spring Boot project scaffolding)
+- `/Users/hardikthumar/Documents/debate/frontend/...` (Vite + React frontend scaffolding)
+
+Database Tables (Planned / JPA Entity Managed):
+----------------------------------------------
+- `users`: Stores registration, login info, and debate stats.
+- `debate_session`: Stores topic, participants, active turns, and stances.
+- `round`: Tracks scores and winner for each round (3 rounds total).
+- `argument`: Stores user argument content, individual judge scores, reasoning, and final scores.
+- `matchmaking_queue`: Temporary queue to match users by topic and opposite stance.
+
+Important Decisions:
+--------------------
+- **Stateless AI evaluation reuse**: We are integrating with the existing python evaluate server (`server.py` on port 8000) by making HTTP requests from Spring Boot. This preserves `td.py` completely intact as requested.
+- **Short Polling for Matchmaking & Turn-Sync**: Simple, robust polling of API status on the frontend to check if matchmaking succeeded or if the opponent has completed their turn.
+- **Vanilla CSS Core styling**: Custom visually rich CSS variables and dark-mode styling implemented in Vanilla CSS for fine control and performance.

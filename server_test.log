@@ -1,0 +1,17 @@
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+INFO:     Started server process [9634]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61623 - "POST /api/rooms/create HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61624 - "POST /api/rooms/join HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61625 - "WebSocket /ws/room/6WTAQI/user1" [accepted]
+INFO:     connection open
+INFO:     127.0.0.1:61626 - "WebSocket /ws/room/6WTAQI/user2" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     connection closed
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [9634]

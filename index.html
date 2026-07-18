@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Debate Arena</title>
+    <!-- Google Fonts: Cinzel, Outfit & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #090b0e;
+            --bg-card: rgba(14, 18, 23, 0.85);
+            --border-color: rgba(212, 175, 55, 0.2); /* Molten Gold trim */
+
+            --primary: #00e5ff;
+            /* House Stark Ice Blue */
+            --primary-glow: rgba(0, 229, 255, 0.35);
+
+            --secondary: #ff5500;
+            /* House Targaryen Fire Orange */
+            --secondary-glow: rgba(255, 85, 0, 0.35);
+
+            --accent: #d4af37;
+            /* Lannister Gold */
+            --danger: #ef4444;
+
+            --text-main: #f5f2eb; /* Aged parchment white */
+            --text-muted: #a39c94; /* Dark stone gray */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(to bottom, rgba(9, 11, 14, 0.72), rgba(9, 11, 14, 0.88)),
+                url('/background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Ambient background stars canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* HEADER & BRANDING */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            background: linear-gradient(to right, #ffffff, #e3dfd5, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .subtitle {
+            font-family: 'Cinzel', serif;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* GENERAL GLASS CARD */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* SCREENS TRANSITIONS */
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .screen.active {
+            display: block;
+            animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* 1. SETUP SCREEN */
+        .setup-box {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .glow-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .glow-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+
+        .rounds-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .round-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .round-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .round-btn.active {
+            background: linear-gradient(135deg, var(--secondary), rgba(139, 92, 246, 0.6));
+            border-color: rgba(139, 92, 246, 0.8);
+            box-shadow: 0 0 15px var(--secondary-glow);
+        }
+
+        .stance-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .stance-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .stance-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stance-btn.active.stance-for {
+            background: linear-gradient(135deg, var(--primary), rgba(0, 229, 255, 0.4));
+            border-color: rgba(0, 229, 255, 0.6);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+        }
+
+        .stance-btn.active.stance-against {
+            background: linear-gradient(135deg, var(--secondary), rgba(255, 85, 0, 0.4));
+            border-color: rgba(255, 85, 0, 0.6);
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.25);
+        }
+
+        .primary-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 14px;
+            padding: 1.25rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .primary-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* 2. ARENA SCREEN */
+        .arena-container {
+            max-width: 1000px;
+        }
+
+        /* Score & Turn Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-info.user1 {
+            align-items: flex-start;
+        }
+
+        .player-info.user2 {
+            align-items: flex-end;
+        }
+
+        .player-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .player-info.user1 .player-label {
+            color: var(--primary);
+        }
+
+        .player-info.user2 .player-label {
+            color: var(--secondary);
+        }
+
+        .player-score {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .round-status {
+            text-align: center;
+            padding: 0 2rem;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+
+        .round-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .turn-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .turn-badge.user1-turn {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.05);
+            animation: pulse-green 2s infinite;
+        }
+
+        .turn-badge.user2-turn {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: var(--secondary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.05);
+            animation: pulse-purple 2s infinite;
+        }
+
+        /* Chat Timeline Arena */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            margin-bottom: 2rem;
+            scroll-behavior: smooth;
+        }
+
+        /* Scrollbar styles */
+        .timeline::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .timeline::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .timeline::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .timeline-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 3rem 0;
+            font-style: italic;
+        }
+
+        .bubble {
+            max-width: 75%;
+            padding: 1.25rem;
+            border-radius: 20px;
+            line-height: 1.5;
+            position: relative;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .bubble.user1 {
+            align-self: flex-start;
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble.user2 {
+            align-self: flex-end;
+            background: rgba(139, 92, 246, 0.06);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bubble.user1 .bubble-header {
+            color: var(--primary);
+        }
+
+        .bubble.user2 .bubble-header {
+            color: var(--secondary);
+        }
+
+        .bubble-score {
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Gated / Off-Topic Warning Styles */
+        .gate-warning-badge {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-left: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .gated-bubble {
+            border: 1px dashed rgba(245, 158, 11, 0.4) !important;
+            background: rgba(245, 158, 11, 0.03) !important;
+        }
+
+        .gate-warning-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 0.85rem 1.25rem;
+            border-radius: 12px;
+            color: #f59e0b;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .gate-warning-banner i {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Input Area with Speech Mic Button */
+        .terminal-box {
+            position: relative;
+        }
+
+        .terminal-textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem 4rem 1.25rem 1.25rem;
+            /* Generous padding on right for float mic */
+            color: var(--text-main);
+            font-size: 1.05rem;
+            font-family: inherit;
+            resize: none;
+            height: 120px;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .arena-container.user1-active .terminal-textarea:focus {
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .arena-container.user2-active .terminal-textarea:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+
+        /* Floating Mic Button inside Textarea Container */
+        .mic-btn {
+            position: absolute;
+            right: 1.25rem;
+            bottom: 4.5rem;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
+        }
+
+        .mic-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            transform: scale(1.05);
+        }
+
+        .mic-btn.listening {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: var(--danger);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        .speech-status {
+            font-size: 0.8rem;
+            color: var(--danger);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: none;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .speech-status.show {
+            display: inline-flex;
+            animation: pulse 1.5s ease-in-out infinite alternate;
+        }
+
+        .terminal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .char-counter {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .evaluate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            padding: 0.9rem 2rem;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .evaluate-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .evaluate-btn i {
+            font-size: 0.95rem;
+        }
+
+        /* 3. LOADING SCREEN */
+        .loading-card {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .hologram {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .hologram-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+            border-top-color: var(--primary);
+            border-bottom-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .hologram-ring:nth-child(2) {
+            top: 10px;
+            left: 10px;
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            border-top-color: var(--secondary);
+            border-bottom-color: var(--accent);
+            animation: spin-reverse 1s linear infinite;
+        }
+
+        .hologram-core {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite alternate;
+        }
+
+        .loading-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .loading-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Pulsing Judge Nodes in loading */
+        .judges-loading-flow {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .judge-loading-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .judge-icon-wrap {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .judge-loading-node.active-fact .judge-icon-wrap {
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: pulse-green 1.5s infinite;
+        }
+
+        .judge-loading-node.active-rebuttal .judge-icon-wrap {
+            color: var(--secondary);
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px var(--secondary-glow);
+            animation: pulse-purple 1.5s infinite;
+        }
+
+        .judge-loading-node.active-novelty .judge-icon-wrap {
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            animation: pulse-amber 1.5s infinite;
+        }
+
+        /* 4. TURN SUMMARY SCREEN */
+        .summary-title {
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        /* Visual score wheel/meter */
+        .score-circle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .score-ring {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        .score-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .score-svg-circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.03);
+            stroke-width: 10;
+        }
+
+        .score-svg-circle-fill {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .turn-summary-container.user1-scored .score-svg-circle-fill {
+            stroke: url(#emerald-gradient);
+            filter: drop-shadow(0 0 8px var(--primary));
+        }
+
+        .turn-summary-container.user2-scored .score-svg-circle-fill {
+            stroke: url(#purple-gradient);
+            filter: drop-shadow(0 0 8px var(--secondary));
+        }
+
+        .score-value-wrap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-val {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .metric-progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            overflow: hidden;
+        }
+
+        .metric-progress-bar-fill {
+            height: 100%;
+            border-radius: 30px;
+            width: 0;
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .turn-summary-container.user1-scored .metric-progress-bar-fill {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .turn-summary-container.user2-scored .metric-progress-bar-fill {
+            background: var(--secondary);
+            box-shadow: 0 0 10px var(--secondary-glow);
+        }
+
+        /* Reasonings accordion */
+        .reasonings-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .reasoning-heading {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .accordions-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .accordion {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.01);
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-inner {
+            padding: 1.25rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .accordion.open {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .accordion.open .accordion-header {
+            color: var(--text-main);
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .accordion.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 5. WINNER SCREEN */
+        .winner-card {
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .crown-wrap {
+            font-size: 4rem;
+            color: var(--accent);
+            filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.5));
+            margin-bottom: 1.5rem;
+            animation: bounce 2s infinite alternate;
+        }
+
+        .winner-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .final-scores-box {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .final-score-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            min-width: 180px;
+        }
+
+        .final-score-column.winner-highlight {
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.03);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.1);
+        }
+
+        .final-score-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .final-score-column.user1-column .final-score-label {
+            color: var(--primary);
+        }
+
+        .final-score-column.user2-column .final-score-label {
+            color: var(--secondary);
+        }
+
+        .final-score-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        /* KEYFRAMES & ANIMATIONS */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin-reverse {
+            0% {
+                transform: rotate(360deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1.1);
+                opacity: 0.9;
+            }
+        }
+
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        @keyframes pulse-purple {
+            0% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+            }
+        }
+
+        @keyframes pulse-amber {
+            0% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Local warning toast overlay */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(239, 68, 68, 0.9);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Routing Strategy Badges */
+        .badge-internal {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .badge-rag {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-web {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Particle Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+            </div>
+            <h1>THE IRON BENCH</h1>
+            <div class="subtitle">A Song of Ice & Fire Debate Arena</div>
+        </header>
+
+        <!-- 1. SETUP SCREEN -->
+        <div id="screen-setup" class="screen glass-card setup-box active">
+            <div class="input-group">
+                <label for="topic-input">Enter Debate Resolution / Topic</label>
+                <input type="text" id="topic-input" class="glow-input"
+                    placeholder="e.g. The Iron Throne belongs to House Stark by right" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label>Number of Rounds</label>
+                <div class="rounds-selector">
+                    <button type="button" class="round-btn active" onclick="selectRounds(1)">1 Round</button>
+                    <button type="button" class="round-btn" onclick="selectRounds(2)">2 Rounds</button>
+                    <button type="button" class="round-btn" onclick="selectRounds(3)">3 Rounds</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>House Stark (User1) Assigned Stance</label>
+                <div class="stance-selector">
+                    <button type="button" id="stance-for-btn" class="stance-btn active stance-for" onclick="selectStance('FOR')">FOR (Affirm)</button>
+                    <button type="button" id="stance-against-btn" class="stance-btn stance-against" onclick="selectStance('AGAINST')">AGAINST (Negate)</button>
+                </div>
+            </div>
+
+            <button type="button" class="primary-btn" onclick="startArena()">
+                ENTER THE ARENA <i class="fa-solid fa-shield-halved" style="margin-left: 0.5rem;"></i>
+            </button>
+        </div>
+
+        <!-- 2. ARENA SCREEN -->
+        <div id="screen-arena" class="screen glass-card arena-container">
+            <!-- Dashboard Info -->
+            <div class="dashboard">
+                <div class="player-info user1">
+                    <span class="player-label" id="user1-label">House Stark (Winter)</span>
+                    <span class="player-score" id="user1-score-dashboard">0.00</span>
+                </div>
+                <div class="round-status">
+                    <div class="round-title" id="round-number-label">ROUND 1</div>
+                    <div id="turn-badge-indicator" class="turn-badge user1-turn">
+                        <i class="fa-solid fa-circle-play"></i> <span id="turn-user-name">House Stark</span>
+                    </div>
+                </div>
+                <div class="player-info user2">
+                    <span class="player-label" id="user2-label">House Targaryen (Fire)</span>
+                    <span class="player-score" id="user2-score-dashboard">0.00</span>
+                </div>
+            </div>
+
+            <!-- Debate Timeline -->
+            <div class="timeline" id="debate-timeline">
+                <div class="timeline-empty" id="timeline-empty-msg">No arguments submitted yet. Enter the first argument
+                    below.</div>
+            </div>
+
+            <!-- Input Box with Speech Microphone -->
+            <div class="terminal-box">
+                <textarea id="argument-textarea" class="terminal-textarea"
+                    placeholder="Type your debate argument here..." oninput="updateCharCount()"></textarea>
+
+                <!-- Floating Glowing Mic Button -->
+                <button type="button" id="mic-btn" class="mic-btn" onclick="toggleSpeech()" title="Speak your argument">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+                <div class="terminal-footer">
+                    <span class="char-counter" id="char-counter-label">0 characters</span>
+
+                    <!-- Real-time Speech Status -->
+                    <span id="speech-status" class="speech-status">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Listening... Speak now
+                    </span>
+
+                    <button type="button" class="evaluate-btn" onclick="submitArgument()">
+                        SUBMIT ARGUMENT <i class="fa-solid fa-bolt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. LOADING SCREEN -->
+        <div id="screen-loading" class="screen glass-card setup-box">
+            <div class="loading-card">
+                <div class="hologram">
+                    <div class="hologram-ring"></div>
+                    <div class="hologram-ring"></div>
+                    <div class="hologram-core"></div>
+                </div>
+                <div class="loading-title">THE MAESTERS ARE DELIBERATING</div>
+                <div class="loading-subtitle">Consulting the scrolls of Westeros...</div>
+
+                <div class="judges-loading-flow">
+                    <div class="judge-loading-node active-fact" id="loading-fact">
+                        <div class="judge-icon-wrap"><i class="fa-solid fa-book-open"></i></div>
+                        <span>The Citadel</span>
+                    </div>
+                    <div class="judge-loading-node active-rebuttal" id="loading-rebuttal">
+                        <div class="judge-icon-wrap"><i class="fa-solid fa-shield-halved"></i></div>
+                        <span>The Wall</span>
+                    </div>
+                    <div class="judge-loading-node active-novelty" id="loading-novelty">
+                        <div class="judge-icon-wrap"><i class="fa-solid fa-crown"></i></div>
+                        <span>King's Landing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TURN SUMMARY SCREEN -->
+        <div id="screen-summary" class="screen glass-card turn-summary-container">
+            <div class="summary-title">
+                <i class="fa-solid fa-circle-check" style="color: var(--primary);" id="summary-title-icon"></i>
+                <span id="summary-title-text">User 1 Evaluation</span>
+            </div>
+
+            <!-- Topic Gate Warning Banner -->
+            <div id="gate-warning-banner" class="gate-warning-banner" style="display: none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span><strong>Topic Gate Triggered:</strong> This argument was determined to be off-topic. A strict
+                    final score cap was applied per competitive debate standards.</span>
+            </div>
+
+            <!-- Stance Gate Warning Banner -->
+            <div id="stance-gate-warning-banner" class="gate-warning-banner" style="display: none; background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: #ef4444; margin: 1rem 0;">
+                <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+                <span><strong>Stance Gate Triggered:</strong> This argument violated the user's assigned stance. A strict final score cap was applied per competitive debate standards.</span>
+            </div>
+
+            <!-- Score Ring -->
+            <div class="score-circle-container">
+                <div class="score-ring">
+                    <svg class="score-svg" viewBox="0 0 160 160">
+                        <circle class="score-svg-circle-bg" cx="80" cy="80" r="70"></circle>
+                        <circle class="score-svg-circle-fill" id="score-ring-fill" cx="80" cy="80" r="70"></circle>
+
+                        <!-- Definitions for gradients -->
+                        <defs>
+                            <linearGradient id="emerald-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00e5ff" />
+                                <stop offset="100%" stop-color="#0288d1" />
+                            </linearGradient>
+                            <linearGradient id="purple-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ff5500" />
+                                <stop offset="100%" stop-color="#b71c1c" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="score-value-wrap">
+                        <span class="score-num" id="score-summary-number">0.0</span>
+                        <span class="score-label">Final Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metric Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Relatedness</span>
+                        <span class="metric-val" id="val-related">0%</span>
+                    </div>
+                    <div class="metric-progress-bar-bg">
+                        <div class="metric-progress-bar-fill" id="bar-related"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Novelty</span>
+                        <span class="metric-val" id="val-novelty">0%</span>
+                    </div>
+                    <div class="metric-progress-bar-bg">
+                        <div class="metric-progress-bar-fill" id="bar-novelty"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Topicality</span>
+                        <span class="metric-val" id="val-topic">0%</span>
+                    </div>
+                    <div class="metric-progress-bar-bg">
+                        <div class="metric-progress-bar-fill" id="bar-topic"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Factual Strength</span>
+                        <span class="metric-val" id="val-fact">0%</span>
+                    </div>
+                    <div class="metric-progress-bar-bg">
+                        <div class="metric-progress-bar-fill" id="bar-fact"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span>Stance Consistency</span>
+                        <span class="metric-val" id="val-stance">0%</span>
+                    </div>
+                    <div class="metric-progress-bar-bg">
+                        <div class="metric-progress-bar-fill" id="bar-stance"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Judges Accordions -->
+            <div class="reasonings-section">
+                <div class="reasoning-heading">
+                    <i class="fa-solid fa-gavel" style="color: var(--accent);"></i> Judges' Reasonings
+                </div>
+                <div class="accordions-wrap">
+                    <div class="accordion" id="acc-judge1">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-judge1')">
+                            <span>The Citadel (Judge 1 - Logic)</span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-inner" id="text-reasoning-judge1">
+                                Evaluating logical structures...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion" id="acc-judge2">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-judge2')">
+                            <span>The Wall (Judge 2 - Rebuttal)</span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-inner" id="text-reasoning-judge2">
+                                Evaluating rebuttals and engagement...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion" id="acc-judge3">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-judge3')">
+                            <span>King's Landing (Judge 3 - Novelty)</span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-inner" id="text-reasoning-judge3">
+                                Auditing topicality and non-repetition...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion" id="acc-judge4">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-judge4')">
+                            <span>The Iron Bank (Judge 4 - Stance)</span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-inner" id="text-reasoning-judge4">
+                                Auditing stance consistency...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion" id="acc-routing">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-routing')">
+                            <span>Knowledge Router (Agentic Strategy)</span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-inner" id="text-routing-details" style="white-space: pre-line; line-height: 1.6;">
+                                Determining optimal knowledge search strategy...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion" id="acc-facts">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-facts')">
+                            <span>Retrieved Web Context (DuckDuckGo RAG)</span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-inner" id="text-retrieved-facts" style="white-space: pre-line;">
+                                Fetching real-time reference facts...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="primary-btn" onclick="nextTurn()">
+                PROCEED TO NEXT TURN <i class="fa-solid fa-chevron-right" style="margin-left: 0.5rem;"></i>
+            </button>
+        </div>
+
+        <!-- 5. WINNER SCREEN -->
+        <div id="screen-winner" class="screen glass-card winner-card">
+            <div class="crown-wrap">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <div class="winner-title" id="winner-title-text">🏆 HOUSE STARK VICTORIOUS!</div>
+            <div class="winner-subtitle" id="winner-subtitle-text">The arena judges have compiled their final verdicts.
+            </div>
+
+            <div class="final-scores-box">
+                <div class="final-score-column user1-column" id="final-column-user1">
+                    <span class="final-score-label">House Stark Total</span>
+                    <span class="final-score-num" id="final-score-user1">0.00</span>
+                </div>
+                <div class="final-score-column user2-column" id="final-column-user2">
+                    <span class="final-score-label">House Targaryen Total</span>
+                    <span class="final-score-num" id="final-score-user2">0.00</span>
+                </div>
+            </div>
+
+            <button type="button" class="primary-btn" onclick="resetArena()">
+                RESTART NEW ARENA <i class="fa-solid fa-rotate-left" style="margin-left: 0.5rem;"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Gibberish Alert Toast -->
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="toast-message">Argument is empty or classified as spam.</span>
+    </div>
+
+    <script>
+        // BACKGROUND PARTICLES CANVAS
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.2 + 0.8;
+                this.type = Math.random() > 0.5 ? 'ice' : 'fire';
+                
+                if (this.type === 'ice') {
+                    this.speedX = Math.random() * 0.3 + 0.05;
+                    this.speedY = Math.random() * 0.4 + 0.2;
+                    this.opacity = Math.random() * 0.5 + 0.3;
+                } else {
+                    this.speedX = Math.random() * 0.4 - 0.2;
+                    this.speedY = -(Math.random() * 0.4 + 0.3);
+                    this.opacity = Math.random() * 0.6 + 0.4;
+                }
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.type === 'ice') {
+                    if (this.y > canvas.height || this.x > canvas.width) {
+                        this.y = 0;
+                        this.x = Math.random() * canvas.width;
+                    }
+                } else {
+                    if (this.y < 0) {
+                        this.y = canvas.height;
+                        this.x = Math.random() * canvas.width;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                if (this.type === 'ice') {
+                    ctx.fillStyle = `rgba(0, 229, 255, ${this.opacity})`;
+                    ctx.shadowColor = 'rgba(0, 229, 255, 0.4)';
+                    ctx.shadowBlur = 4;
+                } else {
+                    ctx.fillStyle = `rgba(255, 85, 0, ${this.opacity})`;
+                    ctx.shadowColor = 'rgba(255, 85, 0, 0.6)';
+                    ctx.shadowBlur = 6;
+                }
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.floor((canvas.width * canvas.height) / 15000);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+        resizeCanvas();
+        initParticles();
+        animateParticles();
+
+        // -------------------------
+        // APP LOGIC
+        // -------------------------
+        let gameState = {
+            topic: "",
+            user1_args: [],
+            user2_args: [],
+            user1_stance: "FOR",
+            user2_stance: "AGAINST",
+            current_round: 1,
+            current_user: "user1",
+            current_argument: "",
+            reasoning: [],
+            related_score: 0.0,
+            novelty_score: 0.0,
+            topic_score: 0.0,
+            fact_score: 0.0,
+            stance_score: 0.0,
+            final_score: 0.0,
+            gated: false,
+            stance_gated: false,
+            user1_total: 0.0,
+            user2_total: 0.0,
+            retrieved_facts: ""
+        };
+
+        let configRounds = 2; // Default rounds
+        let configStance = "FOR"; // Default stance for User 1
+
+        function selectRounds(num) {
+            configRounds = num;
+            const buttons = document.querySelectorAll('.round-btn');
+            buttons.forEach((btn, idx) => {
+                if (idx + 1 === num) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function selectStance(stance) {
+            configStance = stance;
+            const forBtn = document.getElementById('stance-for-btn');
+            const againstBtn = document.getElementById('stance-against-btn');
+
+            if (stance === 'FOR') {
+                forBtn.classList.add('active');
+                againstBtn.classList.remove('active');
+            } else {
+                againstBtn.classList.add('active');
+                forBtn.classList.remove('active');
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 1. START ARENA
+        function startArena() {
+            const topicInput = document.getElementById('topic-input');
+            const topic = topicInput.value.trim();
+            if (!topic) {
+                showToast("Please enter a debate topic.");
+                return;
+            }
+
+            gameState = {
+                topic: topic,
+                user1_args: [],
+                user2_args: [],
+                user1_stance: configStance,
+                user2_stance: configStance === "FOR" ? "AGAINST" : "FOR",
+                current_round: 1,
+                current_user: "user1",
+                current_argument: "",
+                reasoning: [],
+                related_score: 0.0,
+                novelty_score: 0.0,
+                topic_score: 0.0,
+                fact_score: 0.0,
+                stance_score: 0.0,
+                final_score: 0.0,
+                gated: false,
+                stance_gated: false,
+                user1_total: 0.0,
+                user2_total: 0.0,
+                retrieved_facts: ""
+            };
+
+            // Update dashboard UI
+            document.getElementById('user1-score-dashboard').innerText = "0.00";
+            document.getElementById('user2-score-dashboard').innerText = "0.00";
+            document.getElementById('round-number-label').innerText = `ROUND 1`;
+
+            // Clear timeline
+            const timeline = document.getElementById('debate-timeline');
+            timeline.innerHTML = '<div class="timeline-empty" id="timeline-empty-msg">No arguments submitted yet. Enter the first argument below.</div>';
+
+            updateActiveUserUI();
+            showScreen('screen-arena');
+        }
+
+        function updateActiveUserUI() {
+            const arena = document.getElementById('screen-arena');
+            const badge = document.getElementById('turn-badge-indicator');
+            const userName = document.getElementById('turn-user-name');
+            const textInput = document.getElementById('argument-textarea');
+
+            textInput.value = "";
+            document.getElementById('char-counter-label').innerText = "0 characters";
+
+            // Reset microphone UI if listening
+            if (isListening) {
+                stopListening();
+            }
+
+            if (gameState.current_user === "user1") {
+                const stance = gameState.user1_stance;
+                arena.className = "screen glass-card arena-container user1-active";
+                badge.className = "turn-badge user1-turn";
+                userName.innerText = `House Stark (${stance})`;
+                textInput.placeholder = `Type or speak House Stark's argument (${stance === "FOR" ? "supporting" : "negating"} the topic)...`;
+            } else {
+                const stance = gameState.user2_stance;
+                arena.className = "screen glass-card arena-container user2-active";
+                badge.className = "turn-badge user2-turn";
+                userName.innerText = `House Targaryen (${stance})`;
+                textInput.placeholder = `Type or speak House Targaryen's argument (${stance === "FOR" ? "supporting" : "negating"} the topic)...`;
+            }
+        }
+
+        function updateCharCount() {
+            const text = document.getElementById('argument-textarea').value;
+            document.getElementById('char-counter-label').innerText = `${text.length} characters`;
+        }
+
+        // 2. SUBMIT ARGUMENT
+        function submitArgument() {
+            // Make sure to stop listening before submitting
+            stopListening();
+
+            const argumentText = document.getElementById('argument-textarea').value.trim();
+            if (!argumentText) {
+                showToast("Please enter or speak an argument.");
+                return;
+            }
+
+            // Local pre-validation for spam/gibberish
+            const isGibberish = argumentText.length < 4 ||
+                (argumentText.split(' ').length < 2 && argumentText.length < 15);
+
+            if (isGibberish) {
+                showToast("Spam/gibberish detected! Argument rejected.");
+            }
+
+            // Set current argument in state
+            gameState.current_argument = argumentText;
+
+            // Trigger loading screen with pulse sequence
+            showScreen('screen-loading');
+            animateLoadingSequence();
+
+            // Send to stateless FastAPI endpoint
+            fetch('/api/evaluate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gameState)
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Server API call failed.");
+                    return res.json();
+                })
+                .then(data => {
+                    // Update local game state with result
+                    gameState = data;
+
+                    // Transition to turn summary screen
+                    setTimeout(() => {
+                        renderTurnSummary();
+                    }, 1500); // Allow loading animation to breathe
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast("An error occurred during evaluation.");
+                    showScreen('screen-arena');
+                });
+        }
+
+        // Animated pulse effect in loading screen
+        function animateLoadingSequence() {
+            const nodes = ['loading-fact', 'loading-rebuttal', 'loading-novelty'];
+            nodes.forEach(id => document.getElementById(id).style.opacity = '0.3');
+
+            let idx = 0;
+            const interval = setInterval(() => {
+                if (document.getElementById('screen-loading').classList.contains('active')) {
+                    nodes.forEach(id => document.getElementById(id).style.transform = 'scale(1)');
+                    const activeId = nodes[idx % 3];
+                    document.getElementById(activeId).style.opacity = '1';
+                    document.getElementById(activeId).style.transform = 'scale(1.1)';
+                    idx++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        // 3. RENDER TURN SUMMARY
+        function renderTurnSummary() {
+            const summary = document.getElementById('screen-summary');
+            const titleText = document.getElementById('summary-title-text');
+            const titleIcon = document.getElementById('summary-title-icon');
+
+            // Set styles based on who just scored
+            // Note: Since the state has already been updated to the NEXT turn in the history node,
+            // we check who the PREVIOUS user was by seeing who just finished.
+            // If the active user in state is now "user2", it means "user1" just finished.
+            const userJustScored = gameState.current_user === "user2" ? "user1" : "user2";
+            const lastScore = userJustScored === "user1" ?
+                (gameState.user1_total - getPreviousTotal("user1")) :
+                (gameState.user2_total - getPreviousTotal("user2"));
+
+            // Round last score cleanly
+            const roundedScore = Math.max(0, Math.min(100, Math.round(lastScore * 100) / 100));
+
+            if (userJustScored === "user1") {
+                summary.className = "screen glass-card turn-summary-container user1-scored";
+                titleText.innerText = "House Stark (Winter) Evaluation";
+                titleIcon.style.color = "var(--primary)";
+                titleIcon.className = "fa-solid fa-circle-check";
+            } else {
+                summary.className = "screen glass-card turn-summary-container user2-scored";
+                titleText.innerText = "House Targaryen (Fire) Evaluation";
+                titleIcon.style.color = "var(--secondary)";
+                titleIcon.className = "fa-solid fa-circle-check";
+            }
+
+            // Animate Score Ring
+            document.getElementById('score-summary-number').innerText = roundedScore.toFixed(1);
+            const circleFill = document.getElementById('score-ring-fill');
+            // Stroke dasharray is 440. Calculate offset based on percentage (0-100)
+            const offset = 440 - (440 * roundedScore) / 100;
+            circleFill.style.strokeDashoffset = offset;
+
+            // Update Metric Values
+            animateMetric('val-related', 'bar-related', gameState.related_score);
+            animateMetric('val-novelty', 'bar-novelty', gameState.novelty_score);
+            animateMetric('val-topic', 'bar-topic', gameState.topic_score);
+            animateMetric('val-fact', 'bar-fact', gameState.fact_score);
+            animateMetric('val-stance', 'bar-stance', gameState.stance_score);
+
+            // Toggle Gate Warning Banners
+            const gateBanner = document.getElementById('gate-warning-banner');
+            if (gateBanner) {
+                gateBanner.style.display = gameState.gated ? 'flex' : 'none';
+            }
+            const stanceGateBanner = document.getElementById('stance-gate-warning-banner');
+            if (stanceGateBanner) {
+                stanceGateBanner.style.display = gameState.stance_gated ? 'flex' : 'none';
+            }
+
+            // Populate Judges' Reasonings (Accordion text)
+            const reasons = gameState.reasoning || [];
+
+            // Clean reason text helper using prefix lookup
+            const findReason = (prefix) => {
+                const found = reasons.find(r => r.startsWith(prefix));
+                if (!found) return "Skipped evaluation (Topic or Stance Gate triggered).";
+                return found.replace(prefix, '').trim();
+            };
+
+            document.getElementById('text-reasoning-judge1').innerText = findReason("[Logical Analyst Judge]:");
+            document.getElementById('text-reasoning-judge2').innerText = findReason("[Rebuttal Evaluator Judge]:");
+            document.getElementById('text-reasoning-judge3').innerText = findReason("[Topicality Auditor Judge]:");
+            document.getElementById('text-reasoning-judge4').innerText = findReason("[Stance Auditor Judge]:");
+
+            // Populate Routing Details
+            const routingEl = document.getElementById('text-routing-details');
+            if (routingEl) {
+                const strategy = (gameState.knowledge_strategy || "internal").toUpperCase();
+                const confidence = gameState.router_confidence ? `${Math.round(gameState.router_confidence * 100)}%` : "100%";
+                const reason = gameState.router_reason || "Rely on logic and general reasoning.";
+                const query = gameState.search_query || "";
+                
+                let detailsHtml = `<strong>Strategy:</strong> <span class="badge-${strategy.toLowerCase()}">${strategy}</span> (Confidence: ${confidence})<br>`;
+                if ((strategy === "RAG" || strategy === "WEB") && query) {
+                    detailsHtml += `<strong>Generated Search Query:</strong> <code>"${query}"</code><br>`;
+                }
+                detailsHtml += `<strong>Reasoning:</strong> ${reason}`;
+                routingEl.innerHTML = detailsHtml;
+            }
+
+            const retrievedFactsEl = document.getElementById('text-retrieved-facts');
+            if (retrievedFactsEl) {
+                retrievedFactsEl.innerText = gameState.retrieved_facts || "No additional factual reference retrieved.";
+            }
+
+            // Close all accordions initially
+            document.querySelectorAll('.accordion').forEach(a => a.classList.remove('open'));
+            document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+
+            showScreen('screen-summary');
+        }
+
+        function getPreviousTotal(user) {
+            if (user === "user1") {
+                const len = gameState.user1_args.length;
+                if (len <= 1) return 0.0;
+                return gameState.user1_total - gameState.final_score;
+            } else {
+                const len = gameState.user2_args.length;
+                if (len <= 1) return 0.0;
+                return gameState.user2_total - gameState.final_score;
+            }
+        }
+
+        function animateMetric(valId, barId, targetVal) {
+            const valEl = document.getElementById(valId);
+            const barEl = document.getElementById(barId);
+
+            valEl.innerText = "0%";
+            barEl.style.width = "0%";
+
+            setTimeout(() => {
+                valEl.innerText = `${targetVal.toFixed(0)}%`;
+                barEl.style.width = `${targetVal}%`;
+            }, 200);
+        }
+
+        // Accordion toggle
+        function toggleAccordion(id) {
+            const acc = document.getElementById(id);
+            const content = acc.querySelector('.accordion-content');
+
+            if (acc.classList.contains('open')) {
+                acc.classList.remove('open');
+                content.style.maxHeight = null;
+            } else {
+                document.querySelectorAll('.accordion').forEach(a => {
+                    a.classList.remove('open');
+                    a.querySelector('.accordion-content').style.maxHeight = null;
+                });
+
+                acc.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+
+        // 4. NEXT TURN
+        function nextTurn() {
+            // Update dashboard scores
+            document.getElementById('user1-score-dashboard').innerText = gameState.user1_total.toFixed(2);
+            document.getElementById('user2-score-dashboard').innerText = gameState.user2_total.toFixed(2);
+
+            // Append last argument to timeline
+            const timeline = document.getElementById('debate-timeline');
+            const emptyMsg = document.getElementById('timeline-empty-msg');
+            if (emptyMsg) emptyMsg.remove();
+
+            const justCompletedUser = gameState.current_user === "user2" ? "user1" : "user2";
+            const lastArg = justCompletedUser === "user1" ?
+                gameState.user1_args[gameState.user1_args.length - 1] :
+                gameState.user2_args[gameState.user2_args.length - 1];
+
+            const bubbleStance = justCompletedUser === "user1" ? gameState.user1_stance : gameState.user2_stance;
+            const bubble = document.createElement('div');
+            
+            const isGated = gameState.gated;
+            const isStanceGated = gameState.stance_gated;
+            let gateBadge = '';
+            if (isGated) {
+                gateBadge = `<span class="gate-warning-badge" title="Topic gate triggered: argument classified as off-topic and hard-capped"><i class="fa-solid fa-triangle-exclamation"></i> OFF-TOPIC GATED</span>`;
+            } else if (isStanceGated) {
+                gateBadge = `<span class="gate-warning-badge" title="Stance gate triggered: argument violated assigned stance and hard-capped" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> STANCE GATED</span>`;
+            }
+
+            bubble.className = `bubble ${justCompletedUser} ${(isGated || isStanceGated) ? 'gated-bubble' : ''}`;
+            bubble.innerHTML = `
+                <div class="bubble-header">
+                    <span>${justCompletedUser === "user1" ? "House Stark" : "House Targaryen"} (${bubbleStance})</span>
+                    <span class="bubble-score">Score: ${gameState.final_score.toFixed(1)}${gateBadge}</span>
+                </div>
+                <div class="bubble-body">${lastArg}</div>
+            `;
+            timeline.appendChild(bubble);
+            timeline.scrollTop = timeline.scrollHeight;
+
+            if (gameState.current_round > configRounds) {
+                renderWinnerScreen();
+                return;
+            }
+
+            // Update round label
+            document.getElementById('round-number-label').innerText = `ROUND ${gameState.current_round}`;
+
+            // Reset UI for next user
+            updateActiveUserUI();
+            showScreen('screen-arena');
+        }
+
+        // 5. RENDER WINNER SCREEN
+        function renderWinnerScreen() {
+            const title = document.getElementById('winner-title-text');
+            const subtitle = document.getElementById('winner-subtitle-text');
+
+            const score1 = gameState.user1_total;
+            const score2 = gameState.user2_total;
+
+            document.getElementById('final-score-user1').innerText = score1.toFixed(2);
+            document.getElementById('final-score-user2').innerText = score2.toFixed(2);
+
+            const col1 = document.getElementById('final-column-user1');
+            const col2 = document.getElementById('final-column-user2');
+            col1.classList.remove('winner-highlight');
+            col2.classList.remove('winner-highlight');
+
+            if (score1 > score2) {
+                title.innerHTML = "🏆 HOUSE STARK VICTORIOUS!";
+                title.style.color = "var(--primary)";
+                subtitle.innerText = "Winter has arrived. House Stark has claimed the throne.";
+                col1.classList.add('winner-highlight');
+            } else if (score2 > score1) {
+                title.innerHTML = "🏆 HOUSE TARGARYEN VICTORIOUS!";
+                title.style.color = "var(--secondary)";
+                subtitle.innerText = "Fire and blood. House Targaryen has claimed the throne.";
+                col2.classList.add('winner-highlight');
+            } else {
+                title.innerHTML = "🤝 IT'S A DRAW!";
+                title.style.color = "var(--accent)";
+                subtitle.innerText = "Both debaters finished with equal strength.";
+            }
+
+            showScreen('screen-winner');
+        }
+
+        function resetArena() {
+            document.getElementById('topic-input').value = "";
+            showScreen('screen-setup');
+        }
+
+        // -------------------------
+        // SPEECH TO TEXT INTEGRATION (NATIVE WEB SPEECH API)
+        // -------------------------
+        let recognition = null;
+        let isListening = false;
+        let shouldBeListening = false; // 🔥 Track if user explicitly wants dictation active
+        let textBeforeListening = "";
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+
+            recognition.continuous = true; // Keep listening continuously through pauses
+            recognition.interimResults = true; // Feed real-time interim transcriptions
+            recognition.lang = 'en-US'; // Set English locale
+
+            recognition.onstart = () => {
+                isListening = true;
+
+                const micBtn = document.getElementById('mic-btn');
+                const status = document.getElementById('speech-status');
+
+                micBtn.classList.add('listening');
+                micBtn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+                status.classList.add('show');
+
+                // Establish initial baseline from current textbox contents
+                const textarea = document.getElementById('argument-textarea');
+                textBeforeListening = textarea.value;
+                if (textBeforeListening && !textBeforeListening.endsWith(" ")) {
+                    textBeforeListening += " ";
+                }
+            };
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                // Rebuild the current session's transcript from scratch to guarantee accuracy
+                // and prevent any skipped/out-of-order finalization index bugs.
+                for (let i = 0; i < event.results.length; ++i) {
+                    const transcriptSegment = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcriptSegment + " ";
+                    } else {
+                        interimTranscript += transcriptSegment;
+                    }
+                }
+
+                const textarea = document.getElementById('argument-textarea');
+                // Real-time rendering: committed final baseline + active session's final and interim words
+                textarea.value = textBeforeListening + finalTranscript + interimTranscript;
+                updateCharCount();
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                if (event.error === 'not-allowed') {
+                    showToast("Microphone permission denied.");
+                    stopListening();
+                } else if (event.error === 'no-speech') {
+                    // Silently ignore or handle, don't stop the session completely
+                    console.log("No speech detected.");
+                } else {
+                    showToast(`Voice input error: ${event.error}`);
+                    stopListening();
+                }
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+
+                if (shouldBeListening) {
+                    // 🔥 If the browser automatically stopped due to a pause/silence timeout,
+                    // immediately auto-restart the recognition session to keep it truly continuous!
+                    console.log("Speech recognition ended automatically. Auto-restarting...");
+                    setTimeout(() => {
+                        if (shouldBeListening && !isListening) {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.error("Failed to auto-restart speech recognition:", e);
+                            }
+                        }
+                    }, 150);
+                    return;
+                }
+
+                const micBtn = document.getElementById('mic-btn');
+                const status = document.getElementById('speech-status');
+
+                micBtn.classList.remove('listening');
+                micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                status.classList.remove('show');
+
+                // Trim trailing space upon finalization
+                const textarea = document.getElementById('argument-textarea');
+                textarea.value = textarea.value.trim();
+                updateCharCount();
+            };
+        } else {
+            const micBtn = document.getElementById('mic-btn');
+            if (micBtn) {
+                micBtn.style.opacity = '0.5';
+                micBtn.style.cursor = 'not-allowed';
+                micBtn.title = "Voice input not supported in this browser";
+                micBtn.onclick = () => {
+                    showToast("Speech recognition is not supported in this browser. Please use Chrome, Safari, or Edge.");
+                };
+            }
+        }
+
+        function toggleSpeech() {
+            if (!recognition) return;
+
+            if (shouldBeListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            if (!recognition) return;
+            shouldBeListening = true;
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error("Speech start error:", e);
+            }
+        }
+
+        function stopListening() {
+            if (!recognition) return;
+            shouldBeListening = false;
+            try {
+                recognition.stop();
+            } catch (e) {
+                console.error("Speech stop error:", e);
+            }
+        }
+    </script>
+</body>
+
+</html>
