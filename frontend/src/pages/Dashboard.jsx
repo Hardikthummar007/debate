@@ -1077,7 +1077,7 @@ export default function Dashboard() {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-[8px] text-white/50 font-semibold tracking-wider font-sans uppercase">Gold Coins Stake</label>
-                  <span className="text-[8px] text-muted-foreground font-sans uppercase">Balance: {user.coins}G</span>
+                  <span className="text-[8px] text-muted-foreground font-sans uppercase">Balance: {user.coins} GOLD</span>
                 </div>
                 <div className="relative">
                   <input 
@@ -1087,7 +1087,7 @@ export default function Dashboard() {
                     onChange={e => setBetAmount(Math.max(1, Number(e.target.value)))}
                     className="bg-black border border-border text-xs text-white w-full py-1.5 pl-2 pr-8 focus:outline-none"
                   />
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-display text-muted-foreground">G</span>
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-display text-muted-foreground">GOLD</span>
                 </div>
 
                 {/* Quick bets */}

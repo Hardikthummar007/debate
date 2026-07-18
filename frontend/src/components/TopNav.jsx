@@ -252,7 +252,7 @@ export default function TopNav() {
                 <Corners />
                 <Coins className="w-3.5 h-3.5 text-gold-bright" />
                 <span className="font-display text-[10px] md:text-xs font-semibold tracking-wider text-gold-grad">
-                  {user.coins || 0}<span className="text-[8px] md:text-[9px] text-muted-foreground ml-0.5">G</span>
+                  {user.coins || 0}<span className="text-[8px] md:text-[9px] text-muted-foreground ml-0.5">GOLD</span>
                 </span>
               </div>              {/* Notification Bell */}
               <div className="relative flex items-center">
@@ -325,7 +325,7 @@ export default function TopNav() {
                         👤 House Settings
                       </button>
                       <button 
-                        onClick={() => { setShowProfileMenu(false); navigateToDashboardTab("home"); }}
+                        onClick={() => { setShowProfileMenu(false); navigateToDashboardTab("stats"); }}
                         className="w-full text-left px-2 py-1.5 font-display text-[9px] tracking-wider text-white hover:bg-gold/10 hover:text-gold-bright transition-colors uppercase rounded-sm"
                       >
                         📜 Detailed Records
